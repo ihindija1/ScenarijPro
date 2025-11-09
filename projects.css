@@ -1,32 +1,85 @@
-.sidebar{
-    background-color: #f8f9fb;
-     width:250px;
-      padding:28px 22px;
+
+:root{
+ 
+  --accent: #5B3FFF;
+  --accent-dark: #4b2fe6;
+  --text-dark: #333333;
+  --muted: #8b8f95;
+  --card-bg: #ffffff;
+  --card-gap: 20px;
   
 }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Poppins,Inter, sans-serif;
+  color:var(--text-dark);
+  background: #f5f6fa;
+  font-size:16px;
+}
+.app{
+  min-height:100vh;
+  display:flex;
+  align-items:stretch;
+}
+.sidebar{
+  width:250px;
+  background:#f8f9fb;
+  padding:28px 22px;
+  flex-shrink:0;
+}
+.main{
+  padding:28px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
 #naslov{
-    color:blue;
+  color: var(--accent);
+  font-weight:700;
+  font-size:20px;
 }
-.nav-item.projekti{
-    border: 1px black solid;
-     color:blue;
-     background-color:#ADD8E6
-     
+
+.nav ul{
+  list-style:none;
+  padding:0;
+  margin:12px 0 0 0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
+
 .nav-item{
-    padding:10px 12px;
+  padding:10px 12px;
   border-radius:8px;
-
-   
+  color:var(--text-dark);
+  cursor:pointer;
 }
 
+.nav-item.active{
+  background: rgba(91,63,255,0.12);
+  color:var(--accent);
+  font-weight:600;
+}
+
+
+.nav-item:hover{
+  background: rgba(91,63,255,0.08);
+  color:var(--accent-dark);
+}
 .separator{
-   margin-top :40px;
-   margin-bottom:10px;
- 
+  border:0;
+  height:1px;
+  background:rgba(0,0,0,0.06);
+  margin:12px 0;
 }
 
-.profil{
+
+.profile{
   margin-top:auto;
   display:flex;
   gap:12px;
@@ -37,17 +90,135 @@
   height:44px;
   border-radius:50%;
   background:#333333;
-  color:white;
+  color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
   font-weight:700;
 }
-.profil-info .user{
-     font-weight:600;
-    color: #333333;
+.profile-info .user{ color:var(--text-dark); font-weight:600 }
+.profile-info .member{ color:var(--muted); font-size:13px }
+
+.header{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.header h1{ margin:0; font-size:28px; }
+.header-actions{ display:flex; align-items:center; gap:12px; }
+
+.search{
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(0,0,0,0.08);
+  min-width:220px;
 }
-.profil-info .member{ 
-     font-size:13px ;
-    color:grey;
+
+.button{
+  background:var(--accent);
+  color:#fff;
+  border:0;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
 }
+.button:hover{ background:var(--accent-dark); transform: translateY(-1px); }
+
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--card-gap);
+}
+
+.card{
+ 
+  background:var(--card-bg);
+  border-radius:12px;
+  padding:18px;
+  transition: box-shadow .15s ease, transform .08s ease;
+  position:relative;
+}
+.card:hover{
+   box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+   transform: translateY(-3px);
+  border:1px blue solid; }
+
+.title{
+  margin:0 0 8px 0;
+  font-size:14px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.desc{
+   color:var(--muted);
+   margin-bottom:14px;
+   }
+
+.meta{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:6px; font-size:13px;
+   color:var(--text-dark) 
+  }
+.meta strong{ 
+  font-weight:700;
+   margin-right:6px 
+  }
+
+
+.active-pill{
+  display:inline-block;
+  background: linear-gradient(180deg,#fff,#f2f6ff);
+  color: var(--accent);
+  border:1px solid rgba(91,63,255,0.2);
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:13px;
+  position: absolute;  
+  top: 12px;           
+  right: 12px;  
+}
+
+
+.card-new{
+ border:2px dashed rgba(0,0,0,0.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  
+}
+.card-new .plus{ 
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:10px;
+  border-radius:10px;
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  border:1px solid rgba(0,0,0,0.07); 
+}
+
+.card-new:hover{
+  border:2px dashed blue;
+background:transparent;
+
+}
+
+@media (max-width: 749px){
+  .app{ flex-direction:column; }
+  .sidebar{
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid rgba(0,0,0,0.04);
+    padding:18px;
+    flex-direction:row;
+    align-items:center;
+    gap:12px;
+  }
+ 
+  .profile{ margin-left:auto; }
+  .main{ padding:18px; }
+  .grid{ grid-template-columns: 1fr; }
+  .header{ flex-direction:column; align-items:flex-start; gap:12px; }
+  .search{ min-width:unset; width:60%; }
+}
+
