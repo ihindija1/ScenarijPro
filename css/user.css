@@ -1,0 +1,149 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f8ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 10px;
+}
+
+.app {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  padding: 15x 25px;
+  max-width: 840px;
+  width: 100%;
+  overflow-y: auto;
+  flex:1;     
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.linija {
+  border: none;
+  border-top: 2px solid #5B3FFF;
+  width: 60%;
+  margin: 0 auto 6px;
+}
+
+.p {
+
+  text-align: center;
+  color: #555;
+  font-size: 13px;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+.form{
+
+    padding:30px;
+}
+
+.form-section {
+  margin-bottom: 25px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.account-info { background-color: #f1f3ff; }
+.security { background-color: #fff2f2; }
+.notifications { background-color: #e9fff8; }
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+label {
+  width: 220px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+select {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #5B3FFF;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.form-group.checkbox {
+  
+ display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.form-group.checkbox label {
+  font-weight: normal;
+  width: auto;
+}
+.save-btn {
+  display: block;
+  width: 100%;
+  background-color: #5B3FFF;
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #4a2fd4;
+}
+
+/* 🔹 Responzivnost */
+@media (max-width: 750px) {
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .form{
+    flex-direction:column;
+  }
+
+  label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
