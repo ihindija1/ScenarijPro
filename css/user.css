@@ -19,6 +19,16 @@ body {
   overflow-y: auto;
   flex:1;     
 }
+.naslov1{
+  color:#5B3FFF;
+}
+.naslov2{
+  color:red;
+}
+.naslov3{
+  color:green;
+}
+
 
 h1 {
   font-size: 22px;
@@ -57,10 +67,13 @@ h1 {
   background-color: #f1f3ff;
 
  }
+
+ 
 .security { 
   background-color: #fff2f2; 
   
 }
+
 .notifications { background-color: #e9fff8; }
 
 h2 {
@@ -97,6 +110,23 @@ input:focus, select:focus {
   outline: none;
   border-color: #5B3FFF;
 }
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select{
+   border-color: #5B3FFF;
+}
+
+input[type="password"],
+select{
+  border-color:red;
+}
+input[name="frequency"],
+select{
+  border-color:green;
+}
+
 
 .radio-group {
   display: flex;
