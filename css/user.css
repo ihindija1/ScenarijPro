@@ -53,8 +53,14 @@ h1 {
   border-radius: 8px;
 }
 
-.account-info { background-color: #f1f3ff; }
-.security { background-color: #fff2f2; }
+.account-info { 
+  background-color: #f1f3ff;
+
+ }
+.security { 
+  background-color: #fff2f2; 
+  
+}
 .notifications { background-color: #e9fff8; }
 
 h2 {
