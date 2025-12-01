@@ -101,6 +101,7 @@ header.header {
 
 
 .sidebar {
+  position:sticky;
   width: 250px;
   padding: 20px;
   background-color: #fff;
