@@ -16,7 +16,7 @@ let EditorTeksta = function (divRef) {
         return editor.innerText || '';
     };
 
-    // Parsiranje linija (tretira <br> kao novi red)
+    // Parsiranje linija 
     let getLines = function () {
         const html = editor.innerHTML || '';
         const normalized = html.replace(/<br\s*\/?>/gi, '\n');
@@ -395,7 +395,7 @@ let EditorTeksta = function (divRef) {
 
                 if (!prvaScenaDetektovana) {
                     // default scena ako ne postoji nijedna
-                    trenutnaScena = 'INT. - DAY';
+                    trenutnaScena = 'INT. STARSHIP BRIDGE - NIGHT';
                     prvaScenaDetektovana = true;
                 }
 

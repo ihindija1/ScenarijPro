@@ -81,7 +81,7 @@ header.header {
   background-color: #218838;
 }
 
-/* TOOLBAR - FIKSIRAN ISPOD HEADERA */
+
 .editor-toolbar {
   flex-shrink: 0;
   width:100%;
@@ -117,17 +117,17 @@ header.header {
   box-sizing: border-box;
 }
 
-/* GLAVNI KONTEJNER - FLEX SA AUTOMATSKOM VISINOM */
+
 .main-container {
   flex: 1;
   display: flex;
   width: 100%;
-  min-height: 0; /* KLJUČNO za scrollanje */
+  min-height: 0; 
   overflow: hidden;
   box-sizing: border-box;
 }
 
-/* SIDEBAR - BEZ STICKY, SA OVERFLOW */
+
 .sidebar {
   flex-shrink: 0;
   width: 250px;
@@ -196,6 +196,13 @@ header.header {
   font-family: "Courier Prime", "Courier New", monospace;
   box-sizing: border-box;
   min-height: 100%; /* Da se protegne cijeli kontejner */
+  /* Word wrapping */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  /* Backup za ekstremne slučajeve */
+  overflow-x: auto;
 }
 
 .scene-header {
@@ -217,7 +224,7 @@ header.header {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #ddd;
-    max-height: 300px;
+    max-height: 200px;
   }
 
   .header-center {
@@ -227,5 +234,8 @@ header.header {
 
   .editor {
     padding: 30px 20px;
+  }
+  .editor-toolbar {
+    padding-left: 20px; 
   }
 }
