@@ -215,6 +215,12 @@ header.header {
   margin: 1.5em 0;
 }
 
+.line { min-height: 28px; padding: 6px 8px; border-radius: 6px; }
+.line:empty::before { content:"(prazna linija)"; color:#999; }
+.line.active-line { outline: 2px solid #5B3FFF; background: #EEF1FF; }
+
+
+
 @media (max-width: 750px) {
   .main-container {
     flex-direction: column;
