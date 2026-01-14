@@ -115,5 +115,13 @@
     "oldName": "ALICE",
     "newName": "ALICIA",
     "timestamp": 1768350454
+  },
+  {
+    "scenarioId": 1,
+    "type": "line_update",
+    "lineId": 1,
+    "nextLineId": 2,
+    "content": "NARATOR: Sunce je polako zalazilo nad starim gradom.",
+    "timestamp": 1768414182
   }
 ]

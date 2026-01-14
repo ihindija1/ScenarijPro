@@ -1,0 +1,2 @@
+Promijenila sam naziv modula PoziviAjax u PoziviAjaxFetch na par mjesta gdje mi se to pozivalo,
+ dakle to je vrsta I1 izmjene 
