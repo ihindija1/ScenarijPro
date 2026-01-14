@@ -1,4 +1,4 @@
-const PoziviAjax = (function () {
+const PoziviAjaxFetch = (function () {
   async function doFetch(method, url, body, cb) {
     try {
       const opts = { method, headers: { "Content-Type": "application/json" } };
@@ -36,3 +36,5 @@ const PoziviAjax = (function () {
       doFetch("GET", `/api/scenarios/${scenarioId}`, undefined, cb),
   };
 })();
+
+

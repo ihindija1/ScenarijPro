@@ -50,7 +50,7 @@
   }
 
   function loadScenario() {
-    PoziviAjax.getScenario(scenarioId, (status, data) => {
+    PoziviAjaxFetch.getScenario(scenarioId, (status, data) => {
       if (status !== 200) {
         poruka(data.message || "Greška pri učitavanju scenarija");
         return;
@@ -66,7 +66,7 @@
 
     const lineId = Number(lineEl.dataset.lineid);
 
-    PoziviAjax.lockLine(scenarioId, lineId, userId, (status, data) => {
+    PoziviAjaxFetch.lockLine(scenarioId, lineId, userId, (status, data) => {
       if (status !== 200) {
         poruka(data.message || "Ne mogu zaključati liniju");
         return;
@@ -112,7 +112,7 @@ const normalized = html
 const newText = normalized.split(/\r?\n/);
 
 // šalji niz (npr. ["AAA","BBB","CCC"])
-PoziviAjax.updateLine(scenarioId, activeLineId, userId, newText, (status, data) => {
+PoziviAjaxFetch.updateLine(scenarioId, activeLineId, userId, newText, (status, data) => {
 
 
         if (status !== 200) {
@@ -129,7 +129,7 @@ PoziviAjax.updateLine(scenarioId, activeLineId, userId, newText, (status, data) 
 
   // Polling deltas (smjernica sa foruma)
   setInterval(() => {
-    PoziviAjax.getDeltas(scenarioId, lastTs, (status, data) => {
+    PoziviAjaxFetch.getDeltas(scenarioId, lastTs, (status, data) => {
       if (status !== 200) return;
       const deltas = data.deltas || [];
       if (!deltas.length) return;
