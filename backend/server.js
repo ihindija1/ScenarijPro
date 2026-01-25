@@ -219,8 +219,11 @@ app.post("/api/scenarios/:scenarioId/characters/update", async (req, res) => {
   const scn = await readScenario(scenarioId);
   if (!scn) return res.status(404).json({ message: "Scenario ne postoji!" });
 
+ 
+
   if (!isCharacterLockedByUser(scenarioId, oldName, userId)) {
     return res.status(409).json({ message: "Konflikt! Ime lika je vec zakljucano!" });
+    
   }
 
   // konflikt ako bi promjena zahvatila liniju koju je drugi zaključao

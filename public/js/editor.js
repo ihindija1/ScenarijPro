@@ -58,6 +58,51 @@ toolbar.addEventListener("click", e => {
                 poruka(JSON.stringify(grupe, null, 2));
                 break;
             }
+            case "lockUloga": {
+  const uloga = prompt("Unesi ime uloge za zaključavanje (npr. ALICIA):");
+  if (!uloga) return;
+
+  // scenarioId i userId već postoje u writing-connect.js, ali ovdje ih nema.
+  // Najlakše: spremi scenarioId i userId globalno u writing-connect.js:
+  // window.__scenarioId = scenarioId; window.__userId = userId;
+  const scenarioId = window.__scenarioId;
+  const userId = window.__userId;
+
+  PoziviAjaxFetch.lockCharacter(scenarioId, uloga, userId, (status, data) => {
+    if (status !== 200) return poruka(data.message || "Ne mogu zaključati ulogu");
+    poruka(`Uloga zaključana: ${uloga}`);
+  });
+  break;
+}
+
+case "renameUloga": {
+  const oldName = prompt("Staro ime uloge (npr. ALICIA):");
+  if (!oldName) return;
+  const newName = prompt("Novo ime uloge (npr. ALICE):");
+  if (!newName) return;
+
+  const scenarioId = window.__scenarioId;
+  const userId = window.__userId;
+
+  PoziviAjaxFetch.updateCharacter(scenarioId, userId, oldName, newName, (status, data) => {
+    if (status !== 200) return poruka(data.message || "Ne mogu preimenovati ulogu");
+    poruka(`Preimenovano: ${oldName} -> ${newName}`);
+  });
+  break;
+}
+
+case "prikaziPromjene": {
+  const scenarioId = window.__scenarioId;
+  // uzmi lastTs ako ga držiš globalno, ili traži od korisnika:
+  const since = Number(prompt("Timestamp od kojeg želiš promjene (0 za sve):", "0") || 0);
+
+  PoziviAjaxFetch.getDeltas(scenarioId, since, (status, data) => {
+    if (status !== 200) return poruka(data.message || "Ne mogu dohvatiti promjene");
+    poruka(JSON.stringify(data, null, 2));
+  });
+  break;
+}
+
         }
     } catch (err) {
         poruka("Greška: " + err.message);

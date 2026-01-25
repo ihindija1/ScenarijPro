@@ -19,9 +19,47 @@
   const userId = Number(localStorage.getItem("userId") || (Math.floor(Math.random() * 100000) + 1));
   localStorage.setItem("userId", String(userId));
 
+ 
+
   // scenarioId iz URL-a
   const url = new URL(window.location.href);
   const scenarioId = Number(url.searchParams.get("scenarioId") || 1);
+   
+   window.__userId = userId;
+   window.__scenarioId = scenarioId;
+
+
+    // --- Učitaj scenarij po ID (bez ručnog URL-a) ---
+const scenarioInput = document.getElementById("scenarioInput");
+const loadScenarioBtn = document.getElementById("loadScenarioBtn");
+
+if (scenarioInput) scenarioInput.value = String(scenarioId);
+
+function goToScenario(id) {
+  const nextId = Number(id);
+  if (!Number.isInteger(nextId) || nextId < 1) {
+    poruka("Unesi validan ID scenarija (>= 1).");
+    return;
+  }
+  window.location.href = `writing.html?scenarioId=${nextId}`;
+}
+
+if (loadScenarioBtn) {
+  loadScenarioBtn.addEventListener("click", () => {
+    goToScenario(scenarioInput ? scenarioInput.value : "");
+  });
+}
+
+if (scenarioInput) {
+  scenarioInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") goToScenario(scenarioInput.value);
+  });
+}
+
+
+
+
+
 
   let activeLineId = null;
   let lastTs = 0;
@@ -72,6 +110,11 @@
         return;
       }
 
+        if (status !== 200) {
+    poruka(data.message || "Ne mogu zaključati liniju");
+    return;
+  }
+
       // zaključa se - omogući edit samo toj liniji
       editorDiv.querySelectorAll(".line").forEach((x) => {
         x.contentEditable = "false";
@@ -82,6 +125,12 @@
       lineEl.contentEditable = "true";
       lineEl.classList.add("active-line");
       lineEl.focus();
+
+      // zapamti originalno ime lika (ako postoji prefix ULOGA:)
+const originalText = lineEl.innerText || "";
+const roleMatch = originalText.match(/^([^:]+):/);
+lineEl.dataset.originalRole = roleMatch ? roleMatch[1] : "";
+
 
       poruka(`Zaključano: linija ${lineId}. Uredi pa klikni SPASI.`);
     });
@@ -110,6 +159,32 @@ const normalized = html
 
 // 3) napravi niz linija (ovo backend očekuje)
 const newText = normalized.split(/\r?\n/);
+
+
+// 🔒 BLOKADA: zabrani promjenu imena lika kroz SPASI
+const currentText = lineEl.innerText || "";
+const currentRoleMatch = currentText.match(/^([^:]+):/);
+const currentRole = currentRoleMatch ? currentRoleMatch[1] : "";
+
+const originalRole = lineEl.dataset.originalRole || "";
+
+if (originalRole && currentRole && originalRole !== currentRole) {
+  poruka(
+    "Ime lika se ne može mijenjati kroz uređivanje linije. " +
+    "Koristi 'Zaključaj ulogu' i 'Preimenuj ulogu'."
+  );
+  return;
+}
+
+
+
+
+
+
+
+
+
+
 
 // šalji niz (npr. ["AAA","BBB","CCC"])
 PoziviAjaxFetch.updateLine(scenarioId, activeLineId, userId, newText, (status, data) => {

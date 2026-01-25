@@ -81,6 +81,23 @@ header.header {
   background-color: #218838;
 }
 
+.load-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.load-btn:hover {
+  background-color: #218838;
+}
+
+
+
+
 
 .editor-toolbar {
   flex-shrink: 0;

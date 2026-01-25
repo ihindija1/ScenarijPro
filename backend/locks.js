@@ -68,6 +68,9 @@ function isCharacterLockedByUser(scenarioId, characterName, userId) {
   return m ? m.get(characterName) === userId : false;
 }
 
+
+
+
 function unlockCharacterIfOwned(scenarioId, characterName, userId) {
   const m = charLocks.get(scenarioId);
   if (!m) return;
@@ -83,4 +86,5 @@ module.exports = {
   tryLockCharacter,
   isCharacterLockedByUser,
   unlockCharacterIfOwned
+
 };
