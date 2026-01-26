@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 
+
+
 const {
   ensureData,
   nextScenarioId,
@@ -22,6 +24,11 @@ const {
 } = require("./locks");
 
 const { wrap20Words, nowUnixSeconds } = require("./wrap");
+
+const { Scenario, Delta, Checkpoint } = require("./models");
+const { Op } = require("sequelize");
+
+
 
 const app = express();
 app.use(express.json());
@@ -68,21 +75,26 @@ function replaceWholeWord(text, oldName, newName) {
 
 // ---- 1) POST scenario ----
 app.post("/api/scenarios", async (req, res) => {
-  await ensureData();
+  console.log("HIT POST /api/scenarios", req.body);
 
   let title = (req.body && typeof req.body.title === "string") ? req.body.title.trim() : "";
   if (!title) title = "Neimenovani scenarij";
 
-  const id = await nextScenarioId();
+  // MySQL će dodijeliti ID (auto increment)
   const scenario = {
-    id,
     title,
     content: [{ lineId: 1, nextLineId: null, text: "" }]
   };
 
-  await writeScenario(scenario);
-  res.status(200).json(scenario);
+  const createdId = await writeScenario(scenario);
+
+  res.status(200).json({
+    id: createdId,
+    title,
+    content: scenario.content
+  });
 });
+
 
 // ---- 2) lock line ----
 app.post("/api/scenarios/:scenarioId/lines/:lineId/lock", async (req, res) => {
@@ -107,7 +119,8 @@ app.put("/api/scenarios/:scenarioId/lines/:lineId", async (req, res) => {
   const scenarioId = parseInt(req.params.scenarioId, 10);
   const lineId = parseInt(req.params.lineId, 10);
   const userId = req.body?.userId;
-  const newText = req.body?.newText;
+ const newText = req.body?.newText ?? req.body?.new_text;
+
 
   
 
@@ -286,8 +299,111 @@ app.get("/api/scenarios/:scenarioId", async (req, res) => {
   });
 });
 
-const PORT = 3000;
-app.listen(PORT, async () => {
-  await ensureData();
-  console.log(`API radi na http://localhost:${PORT}`);
+// ---- 8) POST checkpoint ----
+app.post("/api/scenarios/:scenarioId/checkpoint", async (req, res) => {
+  const scenarioId = parseInt(req.params.scenarioId, 10);
+
+  const scn = await Scenario.findByPk(scenarioId);
+  if (!scn) return res.status(404).json({ message: "Scenario ne postoji!" });
+
+  await Checkpoint.create({
+    scenarioId,
+    timestamp: nowUnixSeconds()
+  });
+
+  res.status(200).json({ message: "Checkpoint je uspjesno kreiran!" });
 });
+
+// ---- 9) GET checkpoints ----
+app.get("/api/scenarios/:scenarioId/checkpoints", async (req, res) => {
+  const scenarioId = parseInt(req.params.scenarioId, 10);
+
+  const scn = await Scenario.findByPk(scenarioId);
+  if (!scn) return res.status(404).json({ message: "Scenario ne postoji!" });
+
+  const cps = await Checkpoint.findAll({
+    where: { scenarioId },
+    order: [["timestamp", "ASC"], ["id", "ASC"]]
+  });
+
+  res.status(200).json(cps.map(c => ({ id: c.id, timestamp: c.timestamp })));
+});
+
+function applyDeltaToScenario(scnObj, d) {
+  if (d.type === "line_update") {
+    let line = scnObj.content.find(l => l.lineId === d.lineId);
+
+    if (!line) {
+      line = { lineId: d.lineId, nextLineId: null, text: "" };
+      scnObj.content.push(line);
+    }
+
+    line.text = d.content ?? "";
+    line.nextLineId = (d.nextLineId === undefined) ? line.nextLineId : d.nextLineId;
+  }
+
+  if (d.type === "char_rename") {
+    const oldName = d.oldName ?? "";
+    const newName = d.newName ?? "";
+    if (!oldName) return;
+
+    for (const l of scnObj.content) {
+      l.text = replaceWholeWord(l.text, oldName, newName);
+    }
+  }
+}
+
+// ---- 10) GET restore ----
+app.get("/api/scenarios/:scenarioId/restore/:checkpointId", async (req, res) => {
+  const scenarioId = parseInt(req.params.scenarioId, 10);
+  const checkpointId = parseInt(req.params.checkpointId, 10);
+
+  const scn = await Scenario.findByPk(scenarioId);
+  if (!scn) return res.status(404).json({ message: "Scenario ne postoji!" });
+
+  const cp = await Checkpoint.findOne({ where: { id: checkpointId, scenarioId } });
+  if (!cp) return res.status(404).json({ message: "Checkpoint ne postoji!" });
+
+  // 1) početno stanje nakon POST /api/scenarios
+  let base;
+  try {
+    base = JSON.parse(scn.initialSnapshot);
+  } catch {
+    base = { title: scn.title, content: [{ lineId: 1, nextLineId: null, text: "" }] };
+  }
+
+  base.id = scn.id;
+  base.title = scn.title;
+  if (!Array.isArray(base.content)) base.content = [];
+
+  // 2) delte do checkpoint timestampa
+  const deltas = await Delta.findAll({
+    where: { scenarioId, timestamp: { [Op.lte]: cp.timestamp } },
+    order: [["timestamp", "ASC"], ["id", "ASC"]]
+  });
+
+  // 3) primijeni delte
+  for (const d of deltas) {
+    applyDeltaToScenario(base, d.toJSON());
+  }
+
+  // 4) vrati format identičan GET /api/scenarios/:id
+  res.status(200).json({
+    id: base.id,
+    title: base.title,
+    content: orderedContent(base.content)
+  });
+});
+
+
+
+
+
+const PORT = process.env.PORT || 3000;
+
+(async () => {
+  await ensureData();
+  app.listen(PORT, () => {
+    console.log(`API radi na http://localhost:${PORT}`);
+  });
+})();

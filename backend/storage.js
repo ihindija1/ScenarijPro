@@ -1,62 +1,114 @@
-const fs = require("fs");
-const fsp = require("fs/promises");
-const path = require("path");
+const { sequelize } = require("./db");
+const { Scenario, Line, Delta } = require("./models");
 
-const DATA_DIR = path.join(__dirname, "..", "data");
-const SCENARIOS_DIR = path.join(DATA_DIR, "scenarios");
-const DELTAS_PATH = path.join(DATA_DIR, "deltas.json");
+console.log("USING DB STORAGE FILE:", __filename);
+
 
 async function ensureData() {
-  await fsp.mkdir(SCENARIOS_DIR, { recursive: true });
-  if (!fs.existsSync(DELTAS_PATH)) {
-    await fsp.writeFile(DELTAS_PATH, JSON.stringify([], null, 2), "utf-8");
+  // POSTAVKA spirale 4:
+  await sequelize.sync({ force: true });
+
+
+ // SEED kao u Spirali 3 (da testovi mogu odmah lock/update bez POST /api/scenarios)
+  const title = "Seed scenario";
+  const content = [];
+
+  // Napravi bar 10 linija (testovi koriste 1,2,3,6)
+  for (let i = 1; i <= 10; i++) {
+    content.push({
+      lineId: i,
+      nextLineId: i === 10 ? null : i + 1,
+      text: i === 1 ? "ALICE ulazi u sobu." : "" // da char rename test ima šta promijeniti
+    });
   }
+
+  const scn = await Scenario.create({
+    title,
+    initialSnapshot: JSON.stringify({ title, content })
+  });
+
+  await Line.bulkCreate(
+    content.map(l => ({
+      scenarioId: scn.id, // ovo će biti 1 jer je baza prazna nakon force:true
+      lineId: l.lineId,
+      nextLineId: l.nextLineId,
+      text: l.text
+    }))
+  );
+
+  // Deltas i Checkpoints mogu ostati prazni — testovi to ne zahtijevaju.
 }
 
-function scenarioPath(id) {
-  return path.join(SCENARIOS_DIR, `scenario-${id}.json`);
-}
-
-async function listScenarioIds() {
-  await ensureData();
-  const files = await fsp.readdir(SCENARIOS_DIR);
-  return files
-    .map((f) => {
-      const m = f.match(/^scenario-(\d+)\.json$/);
-      return m ? parseInt(m[1], 10) : null;
-    })
-    .filter((x) => Number.isInteger(x));
-}
 
 async function nextScenarioId() {
-  const ids = await listScenarioIds();
-  return ids.length ? Math.max(...ids) + 1 : 1;
-}
-
-async function readScenario(id) {
-  await ensureData();
-  const p = scenarioPath(id);
-  if (!fs.existsSync(p)) return null;
-  const raw = await fsp.readFile(p, "utf-8");
-  return JSON.parse(raw);
+  const maxId = await Scenario.max("id");
+  return (maxId || 0) + 1;
 }
 
 async function writeScenario(scn) {
-  await ensureData();
-  const p = scenarioPath(scn.id);
-  await fsp.writeFile(p, JSON.stringify(scn, null, 2), "utf-8");
+  // scn: { id?, title, content:[{lineId,nextLineId,text}] }
+    console.log("DB writeScenario called");
+  let dbScenario = null;
+
+  if (scn.id) dbScenario = await Scenario.findByPk(scn.id);
+
+  if (!dbScenario) {
+    dbScenario = await Scenario.create({
+      title: scn.title,
+      initialSnapshot: JSON.stringify({
+        title: scn.title,
+        content: scn.content
+      })
+    });
+    scn.id = dbScenario.id;
+  } else {
+    if (typeof scn.title === "string") {
+      dbScenario.title = scn.title;
+      await dbScenario.save();
+    }
+  }
+
+  await Line.destroy({ where: { scenarioId: dbScenario.id } });
+
+  const rows = (scn.content || []).map(l => ({
+    scenarioId: dbScenario.id,
+    lineId: l.lineId,
+    nextLineId: l.nextLineId,
+    text: l.text ?? ""
+  }));
+
+  if (rows.length) await Line.bulkCreate(rows);
+
+  return dbScenario.id;
+}
+
+async function readScenario(id) {
+  const scn = await Scenario.findByPk(id);
+  if (!scn) return null;
+
+  const lines = await Line.findAll({
+    where: { scenarioId: id },
+    order: [["lineId", "ASC"]]
+  });
+
+  return {
+    id: scn.id,
+    title: scn.title,
+    content: lines.map(l => ({
+      lineId: l.lineId,
+      nextLineId: l.nextLineId,
+      text: l.text
+    }))
+  };
 }
 
 async function readDeltas() {
-  await ensureData();
-  const raw = await fsp.readFile(DELTAS_PATH, "utf-8");
-  return JSON.parse(raw);
+  const all = await Delta.findAll({ order: [["timestamp", "ASC"], ["id", "ASC"]] });
+  return all.map(d => d.toJSON());
 }
 
 async function appendDelta(deltaObj) {
-  const deltas = await readDeltas();
-  deltas.push(deltaObj);
-  await fsp.writeFile(DELTAS_PATH, JSON.stringify(deltas, null, 2), "utf-8");
+  await Delta.create(deltaObj);
 }
 
 module.exports = {

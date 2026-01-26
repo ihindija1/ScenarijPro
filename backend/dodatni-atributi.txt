@@ -1,0 +1,1 @@
+Scenario.initialSnapshot - cuva JSON snapshot scenarija odmah nakon kreiranja (POST /api/scenarios), koristi se za restore na checkpoint.
