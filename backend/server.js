@@ -238,7 +238,7 @@ app.post("/api/scenarios/:scenarioId/characters/update", async (req, res) => {
     return res.status(409).json({ message: "Konflikt! Ime lika je vec zakljucano!" });
     
   }
-
+ /*
   // konflikt ako bi promjena zahvatila liniju koju je drugi zaključao
   for (const l of scn.content) {
     const wouldChange = replaceWholeWord(l.text, oldName, newName) !== l.text;
@@ -249,6 +249,7 @@ app.post("/api/scenarios/:scenarioId/characters/update", async (req, res) => {
       }
     }
   }
+    */
 
   for (const l of scn.content) {
     l.text = replaceWholeWord(l.text, oldName, newName);
