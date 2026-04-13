@@ -34,7 +34,10 @@ const app = express();
 app.use(express.json());
 
 // Frontend iz istog origin-a (NEMA CORS)
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(path.join(__dirname, "..", "public"), {
+  index: "html/projects.html"
+}));
+
 
 // ---- helperi ----
 function orderedContent(content) {

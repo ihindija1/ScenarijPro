@@ -5,7 +5,7 @@ function createScenario() {
   const title = prompt("Naslov scenarija:");
   PoziviAjaxFetch.postScenario(title || "", (status, data) => {
     if (status !== 200) return alert(data.message || "Greška");
-    window.location.href = `writing.html?scenarioId=${data.id}`;
+    window.location.href = `/html/writing.html?scenarioId=${data.id}`;
   });
 }
 
