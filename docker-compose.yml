@@ -29,4 +29,3 @@ networks:
  arm-mreza:
   name: arm-mreza
   driver: bridge
-  external: true

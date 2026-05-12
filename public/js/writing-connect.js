@@ -136,6 +136,20 @@ lineEl.dataset.originalRole = roleMatch ? roleMatch[1] : "";
     });
   });
 
+  // ⚡ NOVA POPRAVKA: Spriječi browser da pravi nove div-ove van linije na Enter
+  editorDiv.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const activeLine = range.commonAncestorContainer.parentElement?.closest(".line");
+      
+      if (activeLine && activeLine.contentEditable === "true") {
+         e.preventDefault();
+         document.execCommand("insertLineBreak");
+      }
+    }
+  });
+
   // SPASI -> updateLine
   if (saveBtn) {
     saveBtn.addEventListener("click", () => {
@@ -146,19 +160,12 @@ lineEl.dataset.originalRole = roleMatch ? roleMatch[1] : "";
 
       const lineEl = editorDiv.querySelector(`.line[data-lineid="${activeLineId}"]`);
 
-// 1) uzmi HTML jer contenteditable često ne daje \n u innerText kako očekujemo
-const html = lineEl ? lineEl.innerHTML : "";
+// 1) uzmi innerText jer on najbolje čuva nove redove (\n) iz contenteditable-a
+const text = lineEl ? lineEl.innerText : "";
 
-// 2) pretvori <br> i <div> prelome u \n
-const normalized = html
-  .replace(/<div><br><\/div>/gi, "\n")
-  .replace(/<br\s*\/?>/gi, "\n")
-  .replace(/<\/div>\s*<div>/gi, "\n")
-  .replace(/<div>/gi, "")
-  .replace(/<\/div>/gi, "");
-
-// 3) napravi niz linija (ovo backend očekuje)
-const newText = normalized.split(/\r?\n/);
+// 2) napravi niz linija (ovo backend očekuje)
+const newText = text.split(/\r?\n/).filter(line => line.trim() !== "" || text.length === 0);
+if (newText.length === 0) newText.push("");
 
 
 // 🔒 BLOKADA: zabrani promjenu imena lika kroz SPASI

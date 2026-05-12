@@ -84,9 +84,19 @@ app.post("/api/scenarios", async (req, res) => {
   if (!title) title = "Neimenovani scenarij";
 
   // MySQL će dodijeliti ID (auto increment)
+  // Kreiramo 10 praznih linija odmah, da korisnik ima "liniju ispod linije"
+  const content = [];
+  for (let i = 1; i <= 10; i++) {
+    content.push({
+      lineId: i,
+      nextLineId: i === 10 ? null : i + 1,
+      text: ""
+    });
+  }
+
   const scenario = {
     title,
-    content: [{ lineId: 1, nextLineId: null, text: "" }]
+    content
   };
 
   const createdId = await writeScenario(scenario);
@@ -174,6 +184,15 @@ app.put("/api/scenarios/:scenarioId/lines/:lineId", async (req, res) => {
       const curLine = scn.content.find(l => l.lineId === curId);
       curLine.nextLineId = (i === insertedIds.length - 1) ? oldNext : insertedIds[i + 1];
     }
+  }
+  // --- AUTOMATSKO PROŠIRENJE ---
+  // Ako je zadnja linija u cijelom scenariju sada popunjena, 
+  // automatski dodajemo još jednu praznu na kraj.
+  const lastInScn = scn.content.find(l => l.nextLineId === null);
+  if (lastInScn && lastInScn.text.trim() !== "") {
+    const newId = maxLineId(scn) + 1;
+    lastInScn.nextLineId = newId;
+    scn.content.push({ lineId: newId, nextLineId: null, text: "" });
   }
 
   await writeScenario(scn);

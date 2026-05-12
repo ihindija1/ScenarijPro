@@ -18,13 +18,10 @@ let EditorTeksta = function (divRef) {
 
     // Parsiranje linija 
     let getLines = function () {
-        const html = editor.innerHTML || '';
-        const normalized = html.replace(/<br\s*\/?>/gi, '\n');
-        const temp = document.createElement('div');
-        temp.innerHTML = normalized;
-        const text = temp.textContent || temp.innerText || '';
-        // trim po liniji da se riješimo suvišnih razmaka sa krajeva
-        return text.split('\n').map(l => l.trim());
+        // innerText u većini browsera automatski dodaje \n između div-ova
+        // što je upravo ono što nama treba za ovaj editor
+        const text = editor.innerText || '';
+        return text.split(/\r?\n/).map(l => l.trim());
     };
 
     // Linija koja je samo u zagradama: (ovo je napomena)
